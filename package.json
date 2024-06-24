@@ -1,0 +1,13 @@
+{
+  "devDependencies": {
+    "typescript": "^5.5.2"
+  },
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.4.30",
+    "@vueuse/core": "^10.11.0",
+    "axios": "^1.7.2",
+    "buffer": "^6.0.3",
+    "uuid": "^10.0.0",
+    "vue": "^3.4.30"
+  }
+}
