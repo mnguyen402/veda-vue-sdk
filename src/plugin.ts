@@ -1,7 +1,9 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import {AuthVueClient, Config, Data, TokenRequest, TokenResponse, UserInfoResponse} from "./AuthClient";
+import {AuthVueClient, Config, Data, TokenRequest, TokenResponse, UserInfoResponse} from "./interfaces/AuthClient.ts";
 import {Buffer} from "buffer";
-import {ref, Ref} from "vue";
+import type { App, Ref } from 'vue';
+import { ref } from 'vue';
+import { VEDA_INJECTION_KEY, VEDA_TOKEN } from './token';
 
 export class AuthPlugin implements AuthVueClient {
     public isLoading: Ref<boolean> = ref(true);
@@ -20,6 +22,10 @@ export class AuthPlugin implements AuthVueClient {
                 'Content-Type': 'application/json'
             }
         });
+    }
+    install(app: App) {
+        app.config.globalProperties[VEDA_TOKEN] = this;
+        app.provide(VEDA_INJECTION_KEY, this as AuthVueClient);
     }
 
     async getClientSecret(clientId: string) {
@@ -93,24 +99,24 @@ export class AuthPlugin implements AuthVueClient {
         sessionStorage.setItem('access_token', tokenResponse.access_token);
         sessionStorage.setItem('refresh_token', tokenResponse.refresh_token);
     }
-    async getUser(): Promise<UserInfoResponse | undefined> {
-        try {
-            const userInfo = await this.fetchUserInfo();
-            return userInfo;
-        } catch (error) {
-            console.error("Error fetching user information:", error);
-            return undefined;
-        }
-    }
-    public async Authenticated() {
-        const user = await this.getUser();
-        return !!user;
-    }
-
-    private async refreshState(): Promise<void> {
-        this.isAuthenticated.value = await this.Authenticated();
-        this.isLoading.value = false;
-    }
+    // async getUser(): Promise<UserInfoResponse | undefined> {
+    //     try {
+    //         const userInfo = await this.fetchUserInfo();
+    //         return userInfo;
+    //     } catch (error) {
+    //         console.error("Error fetching user information:", error);
+    //         return undefined;
+    //     }
+    // }
+    // public async Authenticated() {
+    //     const user = await this.getUser();
+    //     return !!user;
+    // }
+    //
+    // private async refreshState(): Promise<void> {
+    //     this.isAuthenticated.value = await this.Authenticated();
+    //     this.isLoading.value = false;
+    // }
 
 
 

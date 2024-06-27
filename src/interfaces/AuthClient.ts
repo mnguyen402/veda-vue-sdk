@@ -1,5 +1,5 @@
 import type { Ref } from 'vue';
-import type { AuthVueState } from './AuthState';
+import type { AuthVueState } from './AuthState.ts';
 
 
 export interface Config {
