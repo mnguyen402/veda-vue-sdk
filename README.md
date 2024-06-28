@@ -1,2 +1,2 @@
-# Veda Authentiacation Vue SDK
+# Veda Authentication Vue SDK
 

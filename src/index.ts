@@ -1,6 +1,6 @@
 import { inject } from 'vue';
 import { VEDA_INJECTION_KEY, VEDA_TOKEN } from './token';
-import {AuthVueClient, Config} from "@/interfaces/AuthClient.ts";
+import {AuthVueClient, Config} from "./interfaces/AuthClient.ts";
 export { VEDA_INJECTION_KEY } from './token'; // exporting to ensure the injection key is exported from token only
 
 
