@@ -32,10 +32,9 @@ export interface UserInfoResponse {
     preferred_username: string;
 }
 
-// Define the AuthClient interface
 export interface AuthVueClient {
 
-    isLoading: Ref<boolean>;
+
     isAuthenticated: Ref<boolean>;
     // user: Ref<User | undefined>;
 

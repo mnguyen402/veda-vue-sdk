@@ -4,10 +4,14 @@ import {Buffer} from "buffer";
 import type { App, Ref } from 'vue';
 import { ref } from 'vue';
 import { VEDA_INJECTION_KEY, VEDA_TOKEN } from './token';
+import {bindPluginMethods} from './utils.ts'
+
 
 export class AuthPlugin implements AuthVueClient {
-    public isLoading: Ref<boolean> = ref(true);
+
     public isAuthenticated: Ref<boolean> = ref(false);
+    // public user: Ref<User | undefined> = ref({});
+
 
     private config: Config;
     private axiosInstance: AxiosInstance;
@@ -22,6 +26,7 @@ export class AuthPlugin implements AuthVueClient {
                 'Content-Type': 'application/json'
             }
         });
+        bindPluginMethods(this, ['constructor']);
     }
     install(app: App) {
         app.config.globalProperties[VEDA_TOKEN] = this;

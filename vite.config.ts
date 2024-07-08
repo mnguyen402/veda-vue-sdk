@@ -1,27 +1,30 @@
-import { defineConfig } from 'vite';
-import vue from '@vitejs/plugin-vue';
+import { defineConfig } from "vite";
+import { resolve } from "path";
+import vue from "@vitejs/plugin-vue";
 import dts from 'vite-plugin-dts';
-import nodePolyfills from 'vite-plugin-node-polyfills';
+import {nodePolyfills} from "vite-plugin-node-polyfills";
 
 export default defineConfig({
-  plugins: [vue(), dts({insertTypesEntry: true,})],
+  plugins: [vue(), dts(), nodePolyfills()],
   build: {
     lib: {
-      entry: 'src/index.ts',
-      formats: ['es'],
+      entry: resolve(__dirname, 'src/main.ts'),
+      formats: ['es']
     },
     rollupOptions: {
       // Make sure to externalize dependencies that shouldn't be bundled into your library
       external: ['vue', 'axios', 'buffer', 'uuid'],
+
+      input: {
+        main: resolve(__dirname, 'src/main.ts')
+      },
+
       output: {
         entryFileNames: '[name].js',
         assetFileNames: 'assets/[name][extname]',
+
         globals: {
-          vue: 'vue',
-          axios: 'axios',
-          buffer: 'Buffer',
-          uuid: 'uuid',
-          '@vueuse/core': 'VueUse',
+          vue: 'Vue',
         },
       },
     },

@@ -1,12 +1,7 @@
 {
-  "name": "veda-auth-vue",
+  "name": "sample2",
+  "private": true,
   "version": "0.0.0",
-  "files": [
-    "dist"
-  ],
-  "module": "./dist/main.js",
-  "exports": "./dist/main.js",
-  "types": "./dist/main.d.ts",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,20 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/axios": "^0.14.0",
-    "axios": "^1.7.2",
-    "buffer": "^6.0.3",
-    "path": "^0.12.7",
+    "veda-auth-vue": "file:../..",
     "vue": "^3.4.29",
     "vue-router": "^4.4.0"
   },
   "devDependencies": {
-    "@types/node": "^20.14.5",
     "@vitejs/plugin-vue": "^5.0.5",
     "typescript": "^5.2.2",
     "vite": "^5.3.1",
-    "vite-plugin-dts": "^3.9.1",
-    "vite-plugin-node-polyfills": "^0.22.0",
     "vue-tsc": "^2.0.21"
   }
 }
