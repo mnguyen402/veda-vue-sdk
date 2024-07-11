@@ -1,17 +1,44 @@
-import axios, { AxiosInstance, AxiosResponse } from "axios";
-import {AuthVueClient, Config, Data, TokenRequest, TokenResponse, UserInfoResponse} from "./interfaces/AuthClient.ts";
-import {Buffer} from "buffer";
 import type { App, Ref } from 'vue';
+
+import type { AuthVueState } from './interfaces/AuthState.ts';
+import axios, { AxiosInstance, AxiosResponse } from "axios";
+import {Buffer} from "buffer";
 import { ref } from 'vue';
 import { VEDA_INJECTION_KEY, VEDA_TOKEN } from './token';
-import {bindPluginMethods} from './utils.ts'
+import {bindPluginMethods} from './utils';
+import {AuthPluginOptions} from "./interfaces/AuthPluginOptions.ts";
 
+export interface Config {
+    clientId: string;
+    clientSecret: string;
+    vedaAuthBaseUrl: string;
+    redirectUri: string;
+}
 
-export class AuthPlugin implements AuthVueClient {
+export interface Data {
+    custos_client_secret: string;
+    authorization_endpoint: string;
+}
 
-    public isAuthenticated: Ref<boolean> = ref(false);
-    // public user: Ref<User | undefined> = ref({});
+export interface TokenRequest {
+    code: string;
+    redirect_uri?: string;
+    grant_type?: string;
+}
 
+export interface TokenResponse {
+    access_token: string;
+    refresh_token: string;
+}
+
+export interface UserInfoResponse {
+    sub: string;
+    name: string;
+    email: string;
+    preferred_username: string;
+}
+
+class AuthVueClient {
 
     private config: Config;
     private axiosInstance: AxiosInstance;
@@ -29,9 +56,17 @@ export class AuthPlugin implements AuthVueClient {
         bindPluginMethods(this, ['constructor']);
     }
     install(app: App) {
+        // this._client = new AuthPlugin({
+        //     ...this.config,
+        //     authClient: {
+        //         name: 'auth-vue',
+        //         version: '2.3.1'
+        //     }
+        // });
         app.config.globalProperties[VEDA_TOKEN] = this;
         app.provide(VEDA_INJECTION_KEY, this as AuthVueClient);
     }
+
 
     async getClientSecret(clientId: string) {
         const response = await this.axiosInstance.get<Data>('/identity-management/credentials',
@@ -124,5 +159,5 @@ export class AuthPlugin implements AuthVueClient {
     // }
 
 
-
 }
+export default AuthVueClient;

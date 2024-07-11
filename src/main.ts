@@ -1,3 +1,2 @@
-export * from './interfaces/AuthClient';
+export * from './AuthClient.ts';
 export * from './index';
-export { AuthPlugin } from './plugin';

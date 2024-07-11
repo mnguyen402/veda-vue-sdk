@@ -1,5 +1,5 @@
 import type { InjectionKey } from "vue";
-import type { AuthVueClient} from "./interfaces/AuthClient.ts";
+import AuthVueClient from "./AuthClient.ts";
 
 /**
  * @ignore
