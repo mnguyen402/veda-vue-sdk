@@ -1,12 +1,10 @@
 import type { App, Ref } from 'vue';
 
-import type { AuthVueState } from './interfaces/AuthState.ts';
-import axios, { AxiosInstance, AxiosResponse } from "axios";
+import axios, { AxiosInstance} from "axios";
 import {Buffer} from "buffer";
 import { ref } from 'vue';
 import { VEDA_INJECTION_KEY, VEDA_TOKEN } from './token';
 import {bindPluginMethods} from './utils';
-import {AuthPluginOptions} from "./interfaces/AuthPluginOptions.ts";
 
 export interface Config {
     clientId: string;
@@ -42,6 +40,8 @@ class AuthVueClient {
 
     private config: Config;
     private axiosInstance: AxiosInstance;
+    public isAuthenticated: Ref<boolean>;
+    public user: Ref<UserInfoResponse | null>;
 
     constructor(config: Config) {
         this.config = config;
@@ -54,21 +54,16 @@ class AuthVueClient {
             }
         });
         bindPluginMethods(this, ['constructor']);
+
+        this.isAuthenticated = ref(false);
+        this.user = ref(null);
     }
     install(app: App) {
-        // this._client = new AuthPlugin({
-        //     ...this.config,
-        //     authClient: {
-        //         name: 'auth-vue',
-        //         version: '2.3.1'
-        //     }
-        // });
         app.config.globalProperties[VEDA_TOKEN] = this;
         app.provide(VEDA_INJECTION_KEY, this as AuthVueClient);
     }
 
-
-    async getClientSecret(clientId: string) {
+    private async getClientSecret(clientId: string) {
         const response = await this.axiosInstance.get<Data>('/identity-management/credentials',
             {
                 headers: {
@@ -81,7 +76,7 @@ class AuthVueClient {
         return response.data.custos_client_secret;
     }
 
-    async getClientAuthBase64(clientId: string | null = null, clientSec: string | null = null){
+    private async getClientAuthBase64(clientId: string | null = null, clientSec: string | null = null){
         if (clientId === null && clientSec === null) {
             clientId = this.config.clientId;
             clientSec = this.config.clientSecret;
@@ -94,7 +89,7 @@ class AuthVueClient {
         return `Bearer ${clientAuthBase64}`;
     }
 
-    async fetchAuthorizationEndpoint(): Promise<void> {
+    private async fetchAuthorizationEndpoint(): Promise<void> {
         const openIdConfigEndpoint = "/identity-management/.well-known/openid-configuration";
         const redirectUri = this.config.redirectUri;
         const {data: {authorization_endpoint}}= await this.axiosInstance.get(openIdConfigEndpoint,
@@ -102,7 +97,7 @@ class AuthVueClient {
         window.location.href = `${authorization_endpoint}?response_type=code&client_id=${this.config.clientId}&redirect_uri=${redirectUri}&scope=openid&kc_idp_hint=oidc`;
     }
 
-    async fetchToken({code}: TokenRequest): Promise<TokenResponse> {
+    private async fetchToken({code}: TokenRequest): Promise<TokenResponse> {
         const clientAuthBase64 = await this.getClientAuthBase64();
 
         const {data} = await this.axiosInstance.post("/identity-management/token", {
@@ -116,7 +111,7 @@ class AuthVueClient {
         });
         return data;
     }
-    async fetchUserInfo(): Promise<UserInfoResponse> {
+    private async fetchUserInfo(): Promise<UserInfoResponse> {
         const clientAuthBase64 = await this.getClientAuthBase64();
         const {data} = await this.axiosInstance.get("/user-management/userinfo", {
             params: {
@@ -126,9 +121,11 @@ class AuthVueClient {
                 'Authorization': clientAuthBase64
             }
         });
+        this.user.value = data;
+        this.isAuthenticated.value = true;
         return data;
     }
-    async handleRedirect(): Promise<void> {
+    private async handleRedirect(): Promise<void> {
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
 
@@ -139,25 +136,20 @@ class AuthVueClient {
         sessionStorage.setItem('access_token', tokenResponse.access_token);
         sessionStorage.setItem('refresh_token', tokenResponse.refresh_token);
     }
-    // async getUser(): Promise<UserInfoResponse | undefined> {
-    //     try {
-    //         const userInfo = await this.fetchUserInfo();
-    //         return userInfo;
-    //     } catch (error) {
-    //         console.error("Error fetching user information:", error);
-    //         return undefined;
-    //     }
-    // }
-    // public async Authenticated() {
-    //     const user = await this.getUser();
-    //     return !!user;
-    // }
-    //
-    // private async refreshState(): Promise<void> {
-    //     this.isAuthenticated.value = await this.Authenticated();
-    //     this.isLoading.value = false;
-    // }
 
-
+    private async logout(){
+        const clientAuthBase64 = await this.getClientAuthBase64();
+        const refreshToken = sessionStorage.getItem('refresh_token');
+        const {data} = await this.axiosInstance.post("/identity-management/user/logout", {
+            refresh_token: refreshToken,
+        }, {
+            headers: {
+                'Authorization': clientAuthBase64
+            }
+        });
+        this.isAuthenticated.value = false;
+        this.user.value = null;
+        return data;
+    }
 }
 export default AuthVueClient;

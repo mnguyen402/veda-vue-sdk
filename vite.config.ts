@@ -12,7 +12,7 @@ export default defineConfig({
       formats: ['es']
     },
     rollupOptions: {
-      // Make sure to externalize dependencies that shouldn't be bundled into your library
+      // externalize dependencies that shouldn't be bundled into the library
       external: ['vue', 'axios', 'buffer', 'uuid'],
 
       input: {
